@@ -109,89 +109,94 @@ export function ChatProvider({
   >(initialPreferences?.imageGenerationModel);
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
   const [toolkits, setToolkitsState] = useState<Array<SelectedToolkit>>(() => {
-  // If this is a workbench chat, initialize with workbench toolkits if available
-  if (workbench) {
-    const workbenchToolkits = [
-      ...workbench.toolkitIds.map((toolkitId) => {
-        if (availableToolkitIds?.includes(toolkitId as Toolkits)) {
-          const clientToolkit = allClientToolkits[toolkitId as Toolkits];
-          if (clientToolkit) {
-            return {
-              id: toolkitId,
-              toolkit: clientToolkit,
-              parameters: {},
-            };
+    // If this is a workbench chat, initialize with workbench toolkits if available
+    if (workbench) {
+      const workbenchToolkits = [
+        ...workbench.toolkitIds.map((toolkitId) => {
+          if (availableToolkitIds?.includes(toolkitId as Toolkits)) {
+            const clientToolkit = allClientToolkits[toolkitId as Toolkits];
+            if (clientToolkit) {
+              return {
+                id: toolkitId,
+                toolkit: clientToolkit,
+                parameters: {},
+              };
+            }
           }
-        }
-        return null;
-      }),
+          return null;
+        }),
+        // Google Drive toolkit always ON (remove this to disable always ON)
+        {
+          id: Toolkits.GoogleDrive,
+          toolkit: allClientToolkits[Toolkits.GoogleDrive],
+          parameters: {},
+        },
+      ].filter(
+        (
+          toolkit,
+        ): toolkit is {
+          id: Toolkits;
+          toolkit: ClientToolkit;
+          parameters: z.infer<ClientToolkit["parameters"]>;
+        } => toolkit !== null,
+      );
+
+      return workbenchToolkits;
+    }
+
+    // Restore toolkits by matching persisted ones with available client toolkits
+    if (
+      initialPreferences?.toolkits &&
+      initialPreferences.toolkits.length > 0
+    ) {
+      const restoredToolkits = [
+        ...initialPreferences.toolkits.map((persistedToolkit) => {
+          if (availableToolkitIds?.includes(persistedToolkit.id as Toolkits)) {
+            const clientToolkit =
+              allClientToolkits[
+                persistedToolkit.id as keyof typeof allClientToolkits
+              ];
+            if (clientToolkit) {
+              return {
+                id: persistedToolkit.id,
+                toolkit: clientToolkit,
+                parameters: persistedToolkit.parameters,
+              };
+            }
+          }
+          return null;
+        }),
+        // Google Drive toolkit always ON (remove this to disable always ON)
+        {
+          id: Toolkits.GoogleDrive,
+          toolkit: allClientToolkits[Toolkits.GoogleDrive],
+          parameters: {},
+        },
+      ].filter(
+        (
+          toolkit,
+        ): toolkit is {
+          id: Toolkits;
+          toolkit: ClientToolkit;
+          parameters: z.infer<ClientToolkit["parameters"]>;
+        } => toolkit !== null,
+      );
+
+      return restoredToolkits;
+    }
+
+    // Google Drive toolkit always ON (return empty array to disable always ON)
+    // Fallback to just Google Drive toolkit if nothing else
+    return [
       {
         id: Toolkits.GoogleDrive,
         toolkit: allClientToolkits[Toolkits.GoogleDrive],
-        parameters: {},
+        parameters: allClientToolkits[Toolkits.GoogleDrive].parameters.parse(
+          {},
+        ),
       },
-    ].filter(
-      (
-        toolkit,
-      ): toolkit is {
-        id: Toolkits;
-        toolkit: ClientToolkit;
-        parameters: z.infer<ClientToolkit["parameters"]>;
-      } => toolkit !== null,
-    );
-
-    return workbenchToolkits;
-  }
-
-  // Restore toolkits by matching persisted ones with available client toolkits
-  if (
-    initialPreferences?.toolkits &&
-    initialPreferences.toolkits.length > 0
-  ) {
-    const restoredToolkits = [
-      ...initialPreferences.toolkits.map((persistedToolkit) => {
-        if (availableToolkitIds?.includes(persistedToolkit.id as Toolkits)) {
-          const clientToolkit =
-            allClientToolkits[
-              persistedToolkit.id as keyof typeof allClientToolkits
-            ];
-          if (clientToolkit) {
-            return {
-              id: persistedToolkit.id,
-              toolkit: clientToolkit,
-              parameters: persistedToolkit.parameters,
-            };
-          }
-        }
-        return null;
-      }),
-      {
-        id: Toolkits.GoogleDrive,
-        toolkit: allClientToolkits[Toolkits.GoogleDrive],
-        parameters: {},
-      },
-    ].filter(
-      (
-        toolkit,
-      ): toolkit is {
-        id: Toolkits;
-        toolkit: ClientToolkit;
-        parameters: z.infer<ClientToolkit["parameters"]>;
-      } => toolkit !== null,
-    );
-
-    return restoredToolkits;
-  }
-
-  // Fallback to just Google Drive toolkit if nothing else
-  return [
-    {
-      id: Toolkits.GoogleDrive,
-      toolkit: allClientToolkits[Toolkits.GoogleDrive],
-      parameters: allClientToolkits[Toolkits.GoogleDrive].parameters.parse({}),
-    },
-  ];
-});
+    ];
+  });
 
   const [hasInvalidated, setHasInvalidated] = useState(false);
 
