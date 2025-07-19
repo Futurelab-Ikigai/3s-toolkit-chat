@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { VStack } from "@/components/ui/stack";
 import { MotionContainer } from "./motion-container";
 import { AuthModal } from "../auth-modal";
-import Link from "next/link";
 
 export const HeroSection: React.FC = () => {
   return (
@@ -21,24 +20,19 @@ export const HeroSection: React.FC = () => {
           >
             <VStack className="items-center md:items-end">
               <Badge variant="primary" className="text-lg">
-                Futurelab Chat
+                3S Chat
               </Badge>
               <h1 className="from-foreground to-foreground/80 bg-gradient-to-r bg-clip-text text-center text-4xl leading-tight font-bold text-transparent md:text-right md:text-6xl">
                 <span className="from-primary to-primary/70 bg-gradient-to-r bg-clip-text text-center text-transparent md:text-right">
                   Generative UI Chatbot
                 </span>
                 <br />
-                By{" "}
-                <Link href={"https://futurelabstudios.com/"}>
-                  Futurelab Studios
-                </Link>
               </h1>
             </VStack>
 
             <p className="text-muted-foreground max-w-lg text-center text-lg leading-relaxed md:text-right md:text-xl">
-              Configure a custom chatbot with content-rich, togglable toolkits.
-              100% type-safe communication between server tools and client
-              rendering.
+              A custom chatbot with content-rich, togglable toolkits. 100%
+              type-safe communication between server tools and client rendering.
             </p>
 
             <div className="flex flex-col-reverse gap-4 sm:flex-row">
